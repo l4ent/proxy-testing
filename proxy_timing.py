@@ -21,6 +21,8 @@ def measure_request(proxy_url, target_url):
         "total": []
     }
 
+    data_sizes = []
+
     for _ in range(NUM_REQUESTS):
         try:
             # Start total timer
@@ -78,6 +80,9 @@ def measure_request(proxy_url, target_url):
             response = sock.recv(4096)  # Read the response to complete the request
             https_end = time.time()
 
+            # Calculate data size
+            data_sizes.append(len(response))
+
             # Total time
             total_end = time.time()
 
@@ -96,7 +101,7 @@ def measure_request(proxy_url, target_url):
             continue
 
     # Print results
-    print("\nStage\t\tMin\tMed\tAvg\tMax\tStdDev")
+    print("\nStage\t\t\tMin\tMed\tAvg\tMax\tStdDev")
     for stage, times in timings.items():
         if times:
             print(
@@ -107,6 +112,17 @@ def measure_request(proxy_url, target_url):
                 f"{max(times):.0f}ms\t"
                 f"{statistics.stdev(times):.0f}ms"
             )
+
+    # Print data size statistics
+    if data_sizes:
+        print("\nData Size (bytes):")
+        print(
+            f"Min: {min(data_sizes)} bytes\t"
+            f"Med: {statistics.median(data_sizes):.0f} bytes\t"
+            f"Avg: {statistics.mean(data_sizes):.0f} bytes\t"
+            f"Max: {max(data_sizes)} bytes\t"
+            f"StdDev: {statistics.stdev(data_sizes):.0f} bytes"
+        )
 
 # Main script
 if __name__ == "__main__":
